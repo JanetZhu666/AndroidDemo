@@ -5,7 +5,7 @@ jobs:
     docker:
       - image: circleci/android:api-26-alpha
     environment:
-      ANDROID_HOME: /usr/local/android-sdk-linux
+      ANDROID_HOME: /usr/local
       GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
       JVM_OPTS: -Xmx3200m
     steps:
@@ -19,7 +19,6 @@ jobs:
       - run:
           name: Download Dependencies
           command: |
-                    sudo ANDROID_HOME='/usr/local/android-sdk-linux' ./gradlew dependencies
                     sudo chmod +x ./gradlew
                     ./gradlew androidDependencies
       - store_artifacts:
