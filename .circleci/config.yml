@@ -21,8 +21,8 @@ jobs:
       - run:
           name: chmod permissions
           command: chmod +x ./gradlew
-          name: Run Tests
-          command: ./gradlew lint test
+          name: Download Dependencies
+          command: ./gradlew androidDependencies
       - store_artifacts:
           path: app/build/reports
           destination: reports
