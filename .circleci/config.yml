@@ -1,18 +1,27 @@
-general:
-artifacts:
-- /home/ubuntu/AndroidDemo/app/build/outputs/apk/
-
+## Customize the test machine
 machine:
-environment:
-ANDROID_HOME: /usr/local/android-sdk-linux
-ANDROID_BUILD_TOOLS: 26.0.1
+  environment:
+    ANDROID_TARGET: android-23
+    ADB_INSTALL_TIMEOUT: 12
+    ANDROID_HOME: /usr/local/android-sdk-linux
 
+  java:
+    version: oraclejdk8
+
+
+## Customize checkout
+checkout:
+  post:
+    - git submodule sync
+    - git submodule update --init # use submodules
+
+## Customize dependencies
 dependencies:
-override:
-- echo y | android update sdk --no-ui --all --filter tools,platform-tools,build-tools-26.0.1,android-26,extra-google-m2repository,extra-google-google_play_services,extra-android-support
-- sudo ANDROID_HOME=/usr/local/android-sdk-linux ./gradlew dependencies
+  pre:
+    # workaround for "failed to find Build Tools revision xx"
+    # https://discuss.circleci.com/t/android-build-tools-23-0-2-not-available/455/3
+    - echo y | android update sdk --no-ui --all --filter platform-tools,tools,extra-android-m2repository,extra-google-m2repository,android-23
+    - echo y | android update sdk --no-ui --all --filter build-tools-23.0.3
 
-test:
-override:
-- (./gradlew assemble):
-timeout: 360
+  override:
+   - sudo ANDROID_HOME=/usr/local/android-sdk-linux ./gradlew dependencies
