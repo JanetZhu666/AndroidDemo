@@ -4,8 +4,11 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.test.espresso.IdlingResource;
+import android.support.test.espresso.idling.CountingIdlingResource;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -47,6 +50,9 @@ import static com.mytaxi.android_demo.utils.PermissionHelper.PERMISSIONS_REQUEST
 public class MainActivity extends AuthenticatedActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
 
+    private CountingIdlingResource idlingResource =
+            new CountingIdlingResource("fetchDrivers");
+
     private static final String KEY_LOCATION = "location";
 
     @Inject
@@ -64,6 +70,11 @@ public class MainActivity extends AuthenticatedActivity
     private Location mLastKnownLocation;
     private AutoCompleteTextView mSearchView;
     private DriverAdapter mAdapter;
+
+    @VisibleForTesting
+    public IdlingResource getIdlingResource() {
+        return idlingResource;
+    }
 
     @Override
     protected void onResume() {
@@ -114,9 +125,11 @@ public class MainActivity extends AuthenticatedActivity
 
         mSearchView = findViewById(R.id.textSearch);
         mSearchView.setDropDownAnchor(R.id.searchContainer);
+        idlingResource.increment();
         mHttpClient.fetchDrivers(new HttpClient.DriverCallback() {
             @Override
             public void run() {
+                idlingResource.decrement();
                 mAdapter = new DriverAdapter(MainActivity.this, mDrivers, new DriverAdapter.OnDriverClickCallback() {
                     @Override
                     public void execute(Driver driver) {
