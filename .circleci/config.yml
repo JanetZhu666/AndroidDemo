@@ -8,8 +8,6 @@ jobs:
       ANDROID_HOME: /usr/local/android-sdk-linux
       GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"'
       JVM_OPTS: -Xmx3200m
-    pre:
-      - chmod +x gradlew
     steps:
       - checkout
       - restore_cache:
