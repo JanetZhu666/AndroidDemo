@@ -5,7 +5,10 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.VisibleForTesting;
 import android.support.design.widget.Snackbar;
+import android.support.test.espresso.IdlingResource;
+import android.support.test.espresso.idling.CountingIdlingResource;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -30,6 +33,9 @@ import static com.mytaxi.android_demo.misc.Constants.LOG_TAG;
 
 public class AuthenticationActivity extends AppCompatActivity {
 
+    private CountingIdlingResource idlingResource =
+            new CountingIdlingResource("fetchUser");
+
     @Inject
     HttpClient mHttpClient;
 
@@ -43,6 +49,11 @@ public class AuthenticationActivity extends AppCompatActivity {
 
     public static Intent createIntent(Activity activity) {
         return new Intent(activity, AuthenticationActivity.class);
+    }
+
+    @VisibleForTesting
+    public IdlingResource getIdlingResource() {
+        return idlingResource;
     }
 
     @Override
@@ -67,9 +78,12 @@ public class AuthenticationActivity extends AppCompatActivity {
     private void attemptLogin() {
         final String username = mEditTextUsername.getText().toString();
         final String password = mEditTextPassword.getText().toString();
+
+        idlingResource.increment();
         mHttpClient.fetchUser(RANDOM_USER_SEED, new HttpClient.UserCallback() {
             @Override
             public void run() {
+                idlingResource.decrement();
                 String sha256 = calculateSHA256(password, mUser.getSalt());
                 if (mUser.match(username, sha256)) {
                     mSharedPrefStorage.saveUser(mUser);
