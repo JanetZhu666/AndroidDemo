@@ -3,6 +3,9 @@ jobs:
   build:
     docker:
       - image: circleci/android:api-26-alpha
+    environment:
+      -Xms1024m -Xmx1536m -XX:MaxMetaspaceSize=1536m
+      _JAVA_OPTIONS: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
     steps:
       - run:
           name: Setup emulator
